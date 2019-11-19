@@ -1,4 +1,6 @@
 package com.example.OldTableTennisGame;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.content.Context;
@@ -6,6 +8,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+
+import java.util.Random;
 
 public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback,  Runnable {
     private SurfaceHolder sHolder;
@@ -16,6 +20,9 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
 
     public float positionbar_x = 0;
     public float positionbar_y = 0;
+
+    public float position_opbar_x = 300;
+    public float position_opbar_y = 50;
 
     int width = 0;
     int height = 0;
@@ -31,6 +38,13 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
 
     int dx = 3;
     int dy = 10;
+
+    int opbardx = 4;
+
+    float c1 = 0;
+    float c2 = 0;
+
+    Random random = new Random();
 
     static final long FPS = 80;
     static final long FRAME_TIME = 1000 / FPS;
@@ -74,18 +88,27 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
             ifcolision = 1;
         } else if(position_y < 0 || position_y > height){
             ifcolision = 2;
-        } else if((position_x >= positionbar_x && position_x <= positionbar_x + widthbar)&& position_y >= positionbar_y){
+        } else if((position_x >= positionbar_x && position_x <= positionbar_x + widthbar)&&
+                (position_y >= positionbar_y && position_y < positionbar_y + 50)){
             ifcolision = 3;
+        } else if((position_x >= position_opbar_x && position_x <= position_opbar_x + widthbar)&&
+                (position_y > position_opbar_y && position_y <= position_opbar_y + 50 )){
+            ifcolision = 4;
         }
         return ifcolision;
     }
 
     public void CollisionAfter(){
+
         if(ifcolision == 1){
             dx = -dx;
         } else if(ifcolision == 2){
             dy = -dy;
         } else if(ifcolision == 3){
+            dx *= c1;
+            dy = -dy;
+            dy *= c2;
+        } else if(ifcolision == 4){
             dy = -dy;
         }
     }
@@ -116,6 +139,8 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
     private void doDraw(SurfaceHolder holder){
         Canvas canvas = holder.lockCanvas();
 
+        Bitmap lose = BitmapFactory.decodeResource(getResources(), R.drawable.lose);
+
         Paint paint = new Paint();
         if(loopCount == -1) {
             width = canvas.getWidth();
@@ -128,11 +153,22 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
             positionbar_y = height - 200;
         }
 
+        c1 = (float) (random.nextFloat() + 0.6);
+        c2 = (float) (random.nextFloat() + 0.5);
+
+        System.out.println(c1);
+
         ifcolision = IfCollition();
 
         CollisionAfter();
 
         ifcolision = -1;
+
+        if(position_x < position_opbar_x){
+            position_opbar_x -= opbardx;
+        } else if (position_x > position_opbar_x + widthbar){
+            position_opbar_x += opbardx;
+        }
 
         position_x += dx;
 
@@ -150,11 +186,17 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
             positionbar_x = 0;
         }
 
-        canvas.drawCircle(position_x, position_y, 50, paint);//draw circle at the origin which is translated.
+        if(position_y > positionbar_y + 60){
+            canvas.drawBitmap(lose,0 , 500, paint);
+            dy = 0;
+            dx = 0;
+        }
+
+        canvas.drawCircle(position_x, position_y, 50, paint);
 
         canvas.drawRect(positionbar_x, positionbar_y, positionbar_x + widthbar, positionbar_y + 50, paint);
 
-
+        canvas.drawRect(position_opbar_x, position_opbar_y, position_opbar_x + widthbar, position_opbar_y + 50, paint);
 
         holder.unlockCanvasAndPost(canvas);
     }
