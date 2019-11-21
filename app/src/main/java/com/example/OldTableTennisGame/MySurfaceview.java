@@ -16,20 +16,20 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
     private Thread thread;
 
     public float position_x = 0;
-    public float position_y = 0;//物体の位置
+    public float position_y = 0;//the location of ball
 
     public float positionbar_x = 0;
-    public float positionbar_y = 0;
+    public float positionbar_y = 0;//the location of player's bar
 
     public float position_opbar_x = 300;
-    public float position_opbar_y = 50;
+    public float position_opbar_y = 50;//the location of opposite bar
 
     int width = 0;
-    int height = 0;
+    int height = 0;//the amount of width or height of window
 
-    int ifcolision = -1;
+    int ifcolision = -1;//boolean value for check if collision is triggered
 
-    int widthbar = 500;
+    int widthbar = 500;//the value of width of bar
 
     long loopCount = -1;//variables for counting how many loop is triggered.
 
@@ -37,12 +37,12 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
     //speed of object
 
     int dx = 3;
-    int dy = 10;
+    int dy = 10;//the value of how far ball go
 
     int opbardx = 4;
 
     float c1 = 0;
-    float c2 = 0;
+    float c2 = 0;//Proportionality constants
 
     Random random = new Random();
 
@@ -83,7 +83,7 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
         thread = null;
     }
 
-    public int IfCollition(){
+    public int IfCollision(){
         if(position_x < 0 || position_x > width){
             ifcolision = 1;
         } else if(position_y < 0 || position_y > height){
@@ -95,7 +95,7 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
                 (position_y > position_opbar_y && position_y <= position_opbar_y + 50 )){
             ifcolision = 4;
         }
-        return ifcolision;
+        return ifcolision;//define the situation of collision
     }
 
     public void CollisionAfter(){
@@ -110,7 +110,7 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
             dy *= c2;
         } else if(ifcolision == 4){
             dy = -dy;
-        }
+        }//define response if collision is triggered
     }
 
     @Override
@@ -150,31 +150,29 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
             position_y = height / 2;
 
             positionbar_x = width - 500;
-            positionbar_y = height - 200;
+            positionbar_y = height - 200;//initialize values.
         }
 
         c1 = (float) (random.nextFloat() + 0.6);
         c2 = (float) (random.nextFloat() + 0.5);
 
-        System.out.println(c1);
-
-        ifcolision = IfCollition();
+        ifcolision = IfCollision();
 
         CollisionAfter();
 
-        ifcolision = -1;
+        ifcolision = -1;//initialize value for next action of ball.
 
         if(position_x < position_opbar_x){
             position_opbar_x -= opbardx;
         } else if (position_x > position_opbar_x + widthbar){
             position_opbar_x += opbardx;
-        }
+        }//define moving of opposite bar
 
         position_x += dx;
 
-        position_y += dy;
+        position_y += dy;//add dx or dy to x, y
 
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(Color.WHITE);//fill the before window
 
         vx = MainActivity.ax * 3;
 
@@ -184,13 +182,13 @@ public class MySurfaceview extends SurfaceView implements SurfaceHolder.Callback
 
         if(positionbar_x <= 0){
             positionbar_x = 0;
-        }
+        }//prohibit bar from going outside of window
 
         if(position_y > positionbar_y + 60){
             canvas.drawBitmap(lose,0 , 500, paint);
             dy = 0;
             dx = 0;
-        }
+        }//define lose and action if you are lose
 
         canvas.drawCircle(position_x, position_y, 50, paint);
 
